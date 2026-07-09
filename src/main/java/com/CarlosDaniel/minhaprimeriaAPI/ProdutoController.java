@@ -1,24 +1,32 @@
 package com.CarlosDaniel.minhaprimeriaAPI;
 
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import java.util.Arrays;
+
 import java.util.List;
 
-// Essa anotação avisa ao Spring: "Ei, esta classe vai receber requisições da internet!"
 @RestController
 public class ProdutoController {
 
-    // Mapeamos o verbo HTTP "GET" para o caminho (URI) "/produtos"
+    // A anotação @Autowired injeta a nossa interface automaticamente.
+    // É através da variável 'repository' que daremos comandos ao PostgreSQL.
+    @Autowired
+    private ProdutoRepository repository;
+
     @GetMapping("/produtos")
     public List<Produto> listarProdutos() {
+        // Vai no banco de dados e busca todas as linhas da tabela 'produto'
+        return repository.findAll();
+    }
 
-        // Em um sistema real, buscaríamos isso do Banco de Dados.
-        // Aqui, estamos apenas simulando uma lista em memória.
-        return Arrays.asList(
-                new Produto("Teclado Mecânico", 350.00),
-                new Produto("Mouse Sem Fio", 120.00)
-        );
+    @PostMapping("/produtos")
+    public String cadastrarProduto(@RequestBody Produto novoProduto) {
+        // O comando save() insere o dado na tabela e o banco gera o ID automaticamente
+        Produto produtoSalvo = repository.save(novoProduto);
+
+        return "Sucesso! Produto " + produtoSalvo.getNome() + " salvo no banco com o ID: " + produtoSalvo.getId();
     }
 }

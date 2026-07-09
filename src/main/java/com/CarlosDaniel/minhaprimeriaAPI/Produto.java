@@ -1,17 +1,33 @@
 package com.CarlosDaniel.minhaprimeriaAPI;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
+@Entity
 public class Produto {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id; // <-- O atributo ID precisa estar aqui!
+
     private String nome;
     private double preco;
+
+    public Produto() {
+    }
 
     public Produto(String nome, double preco) {
         this.nome = nome;
         this.preco = preco;
     }
 
-    // ATENÇÃO: Os métodos Getters são OBRIGATÓRIOS aqui!
-    // É através deles que o Spring (usando a biblioteca Jackson) consegue ler
-    // os dados privados para convertê-los em JSON.
+    // <-- O método GET ID precisa estar aqui para o Controller conseguir ler!
+    public Long getId() {
+        return id;
+    }
+
     public String getNome() {
         return nome;
     }
