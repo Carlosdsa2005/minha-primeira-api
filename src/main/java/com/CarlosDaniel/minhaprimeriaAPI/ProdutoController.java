@@ -1,5 +1,6 @@
 package com.CarlosDaniel.minhaprimeriaAPI;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,22 +12,25 @@ import java.util.List;
 @RestController
 public class ProdutoController {
 
-    // A anotação @Autowired injeta a nossa interface automaticamente.
-    // É através da variável 'repository' que daremos comandos ao PostgreSQL.
     @Autowired
     private ProdutoRepository repository;
 
+    // Rota para listar os produtos salvos no banco
     @GetMapping("/produtos")
     public List<Produto> listarProdutos() {
-        // Vai no banco de dados e busca todas as linhas da tabela 'produto'
         return repository.findAll();
     }
 
+    // Rota protegida com @Valid e ProdutoDTO para cadastrar novos produtos
     @PostMapping("/produtos")
-    public String cadastrarProduto(@RequestBody Produto novoProduto) {
-        // O comando save() insere o dado na tabela e o banco gera o ID automaticamente
+    public String cadastrarProduto(@Valid @RequestBody ProdutoDTO dto) {
+
+        // Transformamos o DTO validado na Entidade real
+        Produto novoProduto = new Produto(dto.getNome(), dto.getPreco());
+
+        // Salvamos no banco de dados
         Produto produtoSalvo = repository.save(novoProduto);
 
-        return "Sucesso! Produto " + produtoSalvo.getNome() + " salvo no banco com o ID: " + produtoSalvo.getId();
+        return "Sucesso! Produto " + produtoSalvo.getNome() + " salvo no banco com ID: " + produtoSalvo.getId();
     }
 }
