@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  # Contêiner 1: Nosso Banco de Dados
+  postgres-db:
+    image: postgres:15
+    container_name: minha_api_db
+    environment:
+      # IMPORTANTE: Coloque a mesma senha que você usou no seu application.properties!
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: minha_api_db
+    ports:
+      - "5433:5432"
+
+  # Contêiner 2: A Nossa API
+  api-spring-boot:
+    build: . # Manda o Docker ler o Dockerfile que criamos no Passo 1
+    container_name: minha-api-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres-db # Garante que a API só ligue depois que o banco de dados estiver pronto
+    environment:
+      # O Spring Boot vai usar essas variáveis de ambiente em vez do seu application.properties local
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/minha_api_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 1234
