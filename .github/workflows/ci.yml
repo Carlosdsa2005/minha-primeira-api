@@ -7,20 +7,19 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
 
-    # 1. NOVO: O GitHub vai subir este banco temporário só para os testes passarem!
+    # ADICIONE ESTE BLOCO DE SERVIÇOS ABAIXO:
     services:
-      postgres:
+      postgres-db: # Mesmo nome de host que você usa no application.properties
         image: postgres:15
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: 123
+          POSTGRES_PASSWORD: 1234
           POSTGRES_DB: minha_api_db
         ports:
           - 5432:5432
-        # Isso garante que o Maven só vai rodar quando o banco estiver 100% pronto
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
