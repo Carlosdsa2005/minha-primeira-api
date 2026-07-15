@@ -31,6 +31,17 @@
 	</properties>
 	<dependencies>
 
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
+
+		<!-- Biblioteca para ativar as anotações de Cache no código -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-cache</artifactId>
+		</dependency>
+
 		<!-- Necessário para criar APIs e usar o MockMvc -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

@@ -1,28 +1,37 @@
 version: '3.8'
 
 services:
-  # Contêiner 1: Nosso Banco de Dados
+  # Contêiner 1: Nosso Banco de Dados PostgreSQL
   postgres-db:
     image: postgres:15
     container_name: minha_api_db
     environment:
-      # IMPORTANTE: Coloque a mesma senha que você usou no seu application.properties!
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1234
+      POSTGRES_PASSWORD: 123
       POSTGRES_DB: minha_api_db
     ports:
       - "5433:5432"
 
-  # Contêiner 2: A Nossa API
+  # Contêiner 2: Nosso Cache em Memória (NOVO!)
+  redis-cache:
+    image: redis:7-alpine
+    container_name: minha_api_redis
+    ports:
+      - "6379:6379"
+
+  # Contêiner 3: A Nossa API
   api-spring-boot:
-    build: . # Manda o Docker ler o Dockerfile que criamos no Passo 1
+    build: .
     container_name: minha-api-backend
     ports:
       - "8080:8080"
     depends_on:
-      - postgres-db # Garante que a API só ligue depois que o banco de dados estiver pronto
+      - postgres-db
+      - redis-cache # <-- NOVO: A API agora também espera o Redis ligar
     environment:
-      # O Spring Boot vai usar essas variáveis de ambiente em vez do seu application.properties local
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/minha_api_db
       SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: 1234
+      SPRING_DATASOURCE_PASSWORD: 123
+      # <-- NOVO: Informamos ao Spring onde encontrar o Redis na rede do Docker
+      SPRING_DATA_REDIS_HOST: redis-cache
+      SPRING_DATA_REDIS_PORT: 6379

@@ -2,10 +2,13 @@ package com.CarlosDaniel.minhaprimeriaAPI;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.cache.annotation.Cacheable;
+
 
 import java.util.List;
 
@@ -17,11 +20,13 @@ public class ProdutoController {
 
     // Rota para listar os produtos salvos no banco
     @GetMapping("/produtos")
+    @Cacheable(value = "produtos")
     public List<Produto> listarProdutos() {
         return repository.findAll();
     }
 
     // Rota protegida com @Valid e ProdutoDTO para cadastrar novos produtos
+    @CacheEvict(value = "produtos", allEntries = true)
     @PostMapping("/produtos")
     public String cadastrarProduto(@Valid @RequestBody ProdutoDTO dto) {
 
