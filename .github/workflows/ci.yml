@@ -40,5 +40,11 @@ jobs:
       - name: Make Maven Wrapper executable
         run: chmod +x mvnw
 
-      - name: Build and Test with Maven
-        run: ./mvnw clean package
+      - name: Run tests with Maven
+        run: ./mvnw clean test
+        env:
+            # Força o Spring Boot do GitHub Actions a conectar no localhost em vez de procurar o container Docker
+            SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/minha_api_db
+            SPRING_DATASOURCE_USERNAME: postgres
+            SPRING_DATASOURCE_PASSWORD: 1234
+            SPRING_JPA_PROPERTIES_HIBERNATE_JDBC_TIME_ZONE: America/Sao_Paulo
