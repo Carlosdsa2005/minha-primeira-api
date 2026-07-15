@@ -1,6 +1,5 @@
 name: API Continuous Integration
 
-# Define quando o robô vai trabalhar (a cada push na branch main)
 on:
   push:
     branches: [ "main" ]
@@ -9,15 +8,29 @@ on:
 
 jobs:
   build-and-test:
-    # Cria uma máquina virtual limpa com Linux Ubuntu
     runs-on: ubuntu-latest
 
+    # 1. NOVO: O GitHub vai subir este banco temporário só para os testes passarem!
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 123
+          POSTGRES_DB: minha_api_db
+        ports:
+          - 5432:5432
+        # Isso garante que o Maven só vai rodar quando o banco estiver 100% pronto
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
-      # 1. Baixa o código do seu repositório para a máquina virtual
       - name: Check out the code
         uses: actions/checkout@v4
 
-      # 2. Instala o Java 21 (Temurin)
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
@@ -25,10 +38,8 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      # 3. Dá permissão de execução para o Maven Wrapper (para evitar erros de permissão no Linux)
       - name: Make Maven Wrapper executable
         run: chmod +x mvnw
 
-      # 4. Roda o comando que compila a API e executa todos os nossos testes!
       - name: Build and Test with Maven
         run: ./mvnw clean package
