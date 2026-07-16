@@ -35,6 +35,23 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-redis</artifactId>
 		</dependency>
+		<!-- 1. Spring Boot Actuator: O sensor que coleta a saúde e métricas da API -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
+		<!-- 2. Micrometer Prometheus: O "tradutor" que converte as métricas para o formato do Prometheus -->
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-prometheus</artifactId>
+		</dependency>
+
+		<!-- Biblioteca para conectar a API ao RabbitMQ -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-amqp</artifactId>
+		</dependency>
 
 		<!-- Biblioteca para ativar as anotações de Cache no código -->
 		<dependency>

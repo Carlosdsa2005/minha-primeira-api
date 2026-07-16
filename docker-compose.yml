@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # Contêiner 1: Nosso Banco de Dados PostgreSQL
+  # Contêiner 1: Nosso Banco de Dados
   postgres-db:
     image: postgres:15
     container_name: minha_api_db
@@ -12,14 +12,25 @@ services:
     ports:
       - "5433:5432"
 
-  # Contêiner 2: Nosso Cache em Memória (NOVO!)
+  # Contêiner 2: Nosso Cache em Memória
   redis-cache:
     image: redis:7-alpine
     container_name: minha_api_redis
     ports:
       - "6379:6379"
 
-  # Contêiner 3: A Nossa API
+  # Contêiner 3: Nossa Fila de Mensagens (NOVO!)
+  rabbitmq-broker:
+    image: rabbitmq:3-management  # Usamos a versão 'management' para ter um painel visual!
+    container_name: minha_api_rabbitmq
+    ports:
+      - "5672:5672"   # Porta principal onde a API envia as mensagens
+      - "15672:15672" # Porta do painel de administração no navegador
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: 123456
+
+  # Contêiner 4: A Nossa API
   api-spring-boot:
     build: .
     container_name: minha-api-backend
@@ -27,11 +38,34 @@ services:
       - "8080:8080"
     depends_on:
       - postgres-db
-      - redis-cache # <-- NOVO: A API agora também espera o Redis ligar
+      - redis-cache
+      - rabbitmq-broker # <-- NOVO: A API agora espera o RabbitMQ ligar também
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/minha_api_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: 123
-      # <-- NOVO: Informamos ao Spring onde encontrar o Redis na rede do Docker
       SPRING_DATA_REDIS_HOST: redis-cache
       SPRING_DATA_REDIS_PORT: 6379
+      # <-- NOVO: Credenciais para o Spring Boot achar o RabbitMQ na rede
+      SPRING_RABBITMQ_HOST: rabbitmq-broker
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: admin
+      SPRING_RABBITMQ_PASSWORD: 123456
+
+  # Contêiner 5: Nosso Banco de Dados de Métricas
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: minha_api_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml # Injeta o arquivo que acabamos de criar
+
+  # Contêiner 6: Nosso Painel Gráfico Visual
+  grafana:
+    image: grafana/grafana:latest
+    container_name: minha_api_grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
